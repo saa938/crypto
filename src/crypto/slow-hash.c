@@ -1878,10 +1878,12 @@ void slow_hash_allocate_state(void)
 {
   cn_slow_hash_allocate_state();
   rx_slow_hash_allocate_state();
+  kawpow_slow_hash_allocate_state();
 }
 
 void slow_hash_free_state(void)
 {
   cn_slow_hash_free_state();
   rx_slow_hash_free_state();
+  kawpow_slow_hash_free_state();
 }

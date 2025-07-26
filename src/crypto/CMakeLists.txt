@@ -49,6 +49,7 @@ set(crypto_sources
   skein.c
   slow-hash.c
   rx-slow-hash.c
+  kawpow-slow-hash.c
   CryptonightR_JIT.c
   tree-hash.c)
 
@@ -57,6 +58,7 @@ list(APPEND crypto_sources CryptonightR_template.S)
 endif()
 
 include_directories(${RANDOMX_INCLUDE})
+include_directories(${CMAKE_SOURCE_DIR}/external/kawpow)
 
 set(crypto_headers)
 
@@ -72,6 +74,7 @@ target_link_libraries(cncrypto
   PUBLIC
     epee
     randomx
+    kawpow
     ${Boost_SYSTEM_LIBRARY}
     ${sodium_LIBRARIES}
   PRIVATE

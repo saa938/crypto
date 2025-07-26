@@ -578,7 +578,12 @@ namespace cryptonote
       b.nonce = nonce;
       crypto::hash h;
 
-      if ((b.major_version >= RX_BLOCK_VERSION) && !rx_set)
+      if ((b.major_version >= KAWPOW_BLOCK_VERSION) && !rx_set)
+      {
+        crypto::kawpow_set_miner_thread(th_local_index, tools::get_max_concurrency());
+        rx_set = true;
+      }
+      else if ((b.major_version >= RX_BLOCK_VERSION) && !rx_set)
       {
         crypto::rx_set_miner_thread(th_local_index, tools::get_max_concurrency());
         rx_set = true;
