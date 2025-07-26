@@ -234,7 +234,12 @@ namespace cryptonote
 
     block = is_current ? info.block : info.previous_block;
     *(uint32_t*)(hashing_blob.data() + 39) = SWAP32LE(nonce);
-    if (block.major_version >= RX_BLOCK_VERSION)
+    if (block.major_version >= KAWPOW_BLOCK_VERSION)
+    {
+      const crypto::hash &seed_hash = is_current ? info.seed_hash : info.previous_seed_hash;
+      crypto::kawpow_slow_hash(seed_hash.data, hashing_blob.data(), hashing_blob.size(), hash.data);
+    }
+    else if (block.major_version >= RX_BLOCK_VERSION)
     {
       const crypto::hash &seed_hash = is_current ? info.seed_hash : info.previous_seed_hash;
       crypto::rx_slow_hash(seed_hash.data, hashing_blob.data(), hashing_blob.size(), hash.data);

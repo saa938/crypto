@@ -459,7 +459,13 @@ bool Blockchain::init(BlockchainDB* db, const network_type nettype, bool offline
       return false;
   }
 
-  if (m_hardfork->get_current_version() >= RX_BLOCK_VERSION)
+  if (m_hardfork->get_current_version() >= KAWPOW_BLOCK_VERSION)
+  {
+    const crypto::hash seedhash = get_block_id_by_height(crypto::kawpow_seedheight(m_db->height()));
+    if (seedhash != crypto::null_hash)
+      kawpow_set_main_seedhash(seedhash.data, tools::get_max_concurrency());
+  }
+  else if (m_hardfork->get_current_version() >= RX_BLOCK_VERSION)
   {
     const crypto::hash seedhash = get_block_id_by_height(crypto::rx_seedheight(m_db->height()));
     if (seedhash != crypto::null_hash)
@@ -581,7 +587,12 @@ void Blockchain::pop_blocks(uint64_t nblocks)
   if (stop_batch)
     m_db->batch_stop();
 
-  if (m_hardfork->get_current_version() >= RX_BLOCK_VERSION)
+  if (m_hardfork->get_current_version() >= KAWPOW_BLOCK_VERSION)
+  {
+    const crypto::hash seedhash = get_block_id_by_height(crypto::kawpow_seedheight(m_db->height()));
+    kawpow_set_main_seedhash(seedhash.data, tools::get_max_concurrency());
+  }
+  else if (m_hardfork->get_current_version() >= RX_BLOCK_VERSION)
   {
     const crypto::hash seedhash = get_block_id_by_height(crypto::rx_seedheight(m_db->height()));
     rx_set_main_seedhash(seedhash.data, tools::get_max_concurrency());
@@ -1209,7 +1220,9 @@ bool Blockchain::switch_to_alternative_blockchain(std::list<block_extended_info>
     }
   }
 
-  if (m_hardfork->get_current_version() >= RX_BLOCK_VERSION)
+  if (m_hardfork->get_current_version() >= KAWPOW_BLOCK_VERSION)
+    kawpow_set_main_seedhash(seedhash.data, tools::get_max_concurrency());
+  else if (m_hardfork->get_current_version() >= RX_BLOCK_VERSION)
     rx_set_main_seedhash(seedhash.data, tools::get_max_concurrency());
 
   MGINFO_GREEN("REORGANIZE SUCCESS! on height: " << split_height << ", new blockchain size: " << m_db->height());
@@ -4460,7 +4473,9 @@ leave:
   for (const auto& notifier: m_block_notifiers)
     notifier(new_height - 1, {std::addressof(bl), 1});
 
-  if (m_hardfork->get_current_version() >= RX_BLOCK_VERSION)
+  if (m_hardfork->get_current_version() >= KAWPOW_BLOCK_VERSION)
+    kawpow_set_main_seedhash(seedhash.data, tools::get_max_concurrency());
+  else if (m_hardfork->get_current_version() >= RX_BLOCK_VERSION)
     rx_set_main_seedhash(seedhash.data, tools::get_max_concurrency());
 
   return true;

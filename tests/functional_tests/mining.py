@@ -295,7 +295,7 @@ class MiningTest():
         daemon.generateblocks(address, 1 + lag)
         res = daemon.mining_status()
         assert res.active == False
-        assert res.pow_algorithm == 'RandomX'
+        assert res.pow_algorithm == 'KawPow'
         res = daemon.getblocktemplate(address)
         seed_hash = res.seed_hash
         t0 = time.time()

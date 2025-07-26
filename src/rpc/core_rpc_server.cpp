@@ -1534,14 +1534,21 @@ namespace cryptonote
       res.address = get_account_address_as_str(nettype(), false, lMiningAdr);
     const uint8_t major_version = m_core.get_blockchain_storage().get_current_hard_fork_version();
     const unsigned variant = major_version >= 7 ? major_version - 6 : 0;
-    switch (variant)
+    if (major_version >= KAWPOW_BLOCK_VERSION)
     {
-      case 0: res.pow_algorithm = "Cryptonight"; break;
-      case 1: res.pow_algorithm = "CNv1 (Cryptonight variant 1)"; break;
-      case 2: case 3: res.pow_algorithm = "CNv2 (Cryptonight variant 2)"; break;
-      case 4: case 5: res.pow_algorithm = "CNv4 (Cryptonight variant 4)"; break;
-      case 6: case 7: case 8: case 9: res.pow_algorithm = "RandomX"; break;
-      default: res.pow_algorithm = "RandomX"; break; // assumed
+      res.pow_algorithm = "KawPow";
+    }
+    else
+    {
+      switch (variant)
+      {
+        case 0: res.pow_algorithm = "Cryptonight"; break;
+        case 1: res.pow_algorithm = "CNv1 (Cryptonight variant 1)"; break;
+        case 2: case 3: res.pow_algorithm = "CNv2 (Cryptonight variant 2)"; break;
+        case 4: case 5: res.pow_algorithm = "CNv4 (Cryptonight variant 4)"; break;
+        case 6: case 7: case 8: case 9: res.pow_algorithm = "RandomX"; break;
+        default: res.pow_algorithm = "RandomX"; break; // assumed
+      }
     }
     if (res.is_background_mining_enabled)
     {

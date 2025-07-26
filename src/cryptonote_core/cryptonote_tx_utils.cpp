@@ -673,7 +673,11 @@ namespace cryptonote
   void get_altblock_longhash(const block& b, crypto::hash& res, const crypto::hash& seed_hash)
   {
     blobdata bd = get_block_hashing_blob(b);
-    rx_slow_hash(seed_hash.data, bd.data(), bd.size(), res.data);
+    if (b.major_version >= KAWPOW_BLOCK_VERSION) {
+      kawpow_slow_hash(seed_hash.data, bd.data(), bd.size(), res.data);
+    } else {
+      rx_slow_hash(seed_hash.data, bd.data(), bd.size(), res.data);
+    }
   }
 
   bool get_block_longhash(const Blockchain *pbc, const blobdata& bd, crypto::hash& res, const uint64_t height, const int major_version, const crypto::hash *seed_hash, const int miners)
@@ -685,7 +689,19 @@ namespace cryptonote
       epee::string_tools::hex_to_pod(longhash_202612, res);
       return true;
     }
-    if (major_version >= RX_BLOCK_VERSION)
+    if (major_version >= KAWPOW_BLOCK_VERSION)
+    {
+      crypto::hash hash;
+      if (pbc != NULL)
+      {
+        const uint64_t seed_height = kawpow_seedheight(height);
+        hash = seed_hash ? *seed_hash : pbc->get_pending_block_id_by_height(seed_height);
+      } else
+      {
+        memset(&hash, 0, sizeof(hash));  // only happens when generating genesis block
+      }
+      kawpow_slow_hash(hash.data, bd.data(), bd.size(), res.data);
+    } else if (major_version >= RX_BLOCK_VERSION)
     {
       crypto::hash hash;
       if (pbc != NULL)
